@@ -1,6 +1,8 @@
 const express = require('express');
 const mysql = require('mysql2');
+const cors = require("cors");
 const bodyParser = require('body-parser');
+
 
 const run = mysql.createConnection({
     host: "localhost",
@@ -11,6 +13,7 @@ const run = mysql.createConnection({
 });
 
 const server = express();
+server.use(cors());
 
 server.use(bodyParser.json());
 
@@ -25,11 +28,23 @@ server.get("/user", (req, res) => {
             console.log("No se pudo acceder a la tabla", err);
         } else {
             console.log("Se accedió a la tabla");
-            console.log(resultados);
-            res.json(resultados);
+            res.send(resultados);
         }
     });
 });
+server.get("/user/:id", (req, res) =>{
+    const id = parseInt(req.params.id);
+    
+    run.query("SELECT * FROM alumnos WHERE idAlumno=?", [id], (err, resultados) => {
+        if (err) {
+            console.log("No se pudo acceder a la tabla", err);
+        } else {
+            console.log("Se accedió a la tabla");
+            res.send(resultados);
+        }
+    });
+});
+
 
 server.post("/user", (req, result) => {
     const { NNombre, GGrado } = req.body;
@@ -42,8 +57,9 @@ server.post("/user", (req, result) => {
     });
 });
 
-server.listen(
+server.listen(3000,
      () => {
     console.log("Server is running on port 3000");
 });
+
 
